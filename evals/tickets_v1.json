@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "ticket": "I was charged twice for my subscription this month.",
+    "category": "Billing",
+    "expected_action": "REQUEST_INFO",
+    "reason": "Need invoice ID and charge date before refund eligibility can be verified."
+  },
+  {
+    "id": 2,
+    "ticket": "Does the Pro plan support SSO?",
+    "category": "Product",
+    "expected_action": "RESOLVE",
+    "reason": "Documented product-plan question."
+  },
+  {
+    "id": 3,
+    "ticket": "Someone logged into our admin account from a location I don't recognize.",
+    "category": "Security & Privacy",
+    "expected_action": "ESCALATE",
+    "reason": "Suspected account compromise must always be escalated."
+  },
+  {
+    "id": 4,
+    "ticket": "Our integration has stopped syncing. Can you tell me how to fix it?",
+    "category": "Technical",
+    "expected_action": "ESCALATE",
+    "reason": "No known fix is provided in the knowledge base, so the agent must not invent troubleshooting steps."
+  }
+]
