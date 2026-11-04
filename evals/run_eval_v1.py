@@ -1,22 +1,39 @@
 import json
+import re
 from pathlib import Path
 
 from src.agent_v1 import analyze_ticket
 
-EVAL_FILE = Path("evals/tickets_v1.json")
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+EVAL_FILE = PROJECT_ROOT / "evals" / "tickets_v1.json"
+RESULTS_DIR = PROJECT_ROOT / "results"
+
+# Models often wrap JSON in a ```json ... ``` fence even when told not to.
+FENCE = re.compile(r"^\s*```(?:json)?\s*(.*?)\s*```\s*$", re.DOTALL)
 
 
 def parse_model_output(raw_output: str):
+    if not raw_output:
+        return None
+
+    match = FENCE.match(raw_output)
+    if match:
+        raw_output = match.group(1)
+
     try:
-        return json.loads(raw_output)
+        parsed = json.loads(raw_output)
     except json.JSONDecodeError:
         return None
 
+    return parsed if isinstance(parsed, dict) else None
 
-def run_eval():
-    tickets = json.loads(EVAL_FILE.read_text())
+
+def run_eval(eval_file=EVAL_FILE, results_dir=RESULTS_DIR):
+    tickets = json.loads(Path(eval_file).read_text())
 
     total = len(tickets)
+    if total == 0:
+        raise ValueError(f"No tickets found in {eval_file}")
     category_correct = 0
     action_correct = 0
     parse_failures = 0
@@ -75,14 +92,17 @@ def run_eval():
 
     print(json.dumps(summary, indent=2))
 
-    Path("results").mkdir(exist_ok=True)
-    Path("results/v1_results.json").write_text(
+    results_dir = Path(results_dir)
+    results_dir.mkdir(exist_ok=True)
+    (results_dir / "v1_results.json").write_text(
         json.dumps(results, indent=2)
     )
 
-    Path("results/v1_summary.json").write_text(
+    (results_dir / "v1_summary.json").write_text(
         json.dumps(summary, indent=2)
     )
+
+    return summary
 
 
 if __name__ == "__main__":
